@@ -1,5 +1,5 @@
 # Li_2025
-RNA sequencing and metabolic modeling code used in B Li, bioRxiv 2024:
+RNA sequencing and metabolic modeling code used in B Li, 2025:
 "Bioenergetic stress potentiates antimicrobial resistance and persistence"
 
 Jason H. Yang Lab @ Rutgers New Jersey Medical School
