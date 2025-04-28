@@ -4,6 +4,8 @@ library(parallel)
 library(reticulate)
 
 load_RData <- function(file_name) {
+  # loads genome-scale metabolic model in .RData format
+  
   load(file_name)
   get(ls()[ls() != "file_name"])
 }
@@ -19,6 +21,18 @@ struct_make <- function(result_par) {
 }
 
 individual_imat2mat <- function(rs_data, gem_model, q_low, q_high, exp_dir, sp_io, condition) {
+  # Converts a single iMAT model result into a matlab file readable by gembox and COBRA
+  # Outputs a matlab file of the iMAT model
+  # Called by iterate_imat if there is only one RNA-Seq sample
+  
+  # rs_data: a gene-by-sample RNA-Seq matrix produced by iterate_imat
+  # gem_model: The generic genome-scale metabolic model specified by iterate_imat
+  # q_low: lower threshold for iMAT specified by iterate_imat
+  # q_high: upper threshold for iMAT specified by iterate_imat
+  # exp_dir: directory where iterate_imat should export result model file
+  # sp_io: scipy.io python module imported by Reticulate via iterate_imat
+  # condition: string descriptor specified by iterate_imat used to name result model file
+  
   samp_name <- colnames(rs_data)
   dir.create(paste(exp_dir, "/", samp_name, sep=""))
   
@@ -38,6 +52,19 @@ individual_imat2mat <- function(rs_data, gem_model, q_low, q_high, exp_dir, sp_i
 }
 
 iterate_imat2mat <- function(rs_data, i, gem_model, q_low, q_high, exp_dir, sp_io) {
+  # Converts multiple iMAT model results into multiple matlab files readable by gembox and COBRA
+  # Outputs a matlab file for each iMAT model produced by iterate_imat
+  # Called by iterate_imat if there are multiple RNA-Seq samples
+  # Uses multiprocessing to simultaneously produce iMAT model files for each RNA-Seq sample
+  
+  # rs_data: a gene-by-sample RNA-Seq matrix produced by iterate_imat
+  # i: index for each RNA-Seq sample specified by iterate_imat
+  # gem_model: The generic genome-scale metabolic model specified by iterate_imat
+  # q_low: lower threshold for iMAT specified by iterate_imat
+  # q_high: upper threshold for iMAT specified by iterate_imat
+  # exp_dir: directory where iterate_imat should export result model file
+  # sp_io: scipy.io python module imported by Reticulate via iterate_imat
+  
   samp_name <- colnames(rs_data)[i]
   dir.create(paste(exp_dir, "/", samp_name, sep=""))
   
@@ -60,6 +87,17 @@ iterate_imat2mat <- function(rs_data, i, gem_model, q_low, q_high, exp_dir, sp_i
 
 iterate_imat <- function(data_dir, gem_dir, exp_dir, q_low, q_high, run_samp, num_samp,
                          conda_env, condition) {
+  # Outputs a matlab file for each iMAT model produced by iterate_imat
+  # Called by iterate_imat if there are multiple RNA-Seq samples
+  # Uses multiprocessing to simultaneously produce iMAT model files for each RNA-Seq sample
+  
+  # data_dir: string directory of tab-delimited file of gene-by-sample RNA-Seq matrix
+  # gem_dir: string directory of generic genome-scale metabolic model to be used
+  # exp_dir: directory where iterate_imat should export result files
+  # q_low: lower threshold for iMAT. Determines which genes are considered lowly expressed
+  # q_high: upper threshold for iMAT. Determines which genes are considered highly expressed
+
+  
   use_condaenv(conda_env)
   sp_io <- import("scipy.io")
   
